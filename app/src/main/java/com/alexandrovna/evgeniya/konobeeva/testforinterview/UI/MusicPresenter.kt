@@ -1,25 +1,39 @@
 package com.alexandrovna.evgeniya.konobeeva.testforinterview.UI
 
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
-import com.alexandrovna.evgeniya.konobeeva.testforinterview.MediaBlock.MusicControlls
-import java.net.URI
+import com.alexandrovna.evgeniya.konobeeva.testforinterview.MediaBlock.Commands
+import com.alexandrovna.evgeniya.konobeeva.testforinterview.MediaBlock.MusicService
 
-class MusicPresenter : MusicControlls {
+class MusicPresenter {
 
-    fun startService(context: Context, uri: URI){
-
+    fun play(context: Context, uri: Uri) {
+        createIntent(context, Commands.PLAY, uri)
     }
 
-    override fun play(uri: Uri) {
+    fun stop(context: Context) {
+        createIntent(context, Commands.PLAY)
     }
 
-    override fun stop() {
+    fun pause(context: Context) {
+        createIntent(context,Commands.PLAY)
     }
 
-    override fun pause() {
+    fun reset(context: Context,uri: Uri) {
+        createIntent(context, Commands.PLAY, uri)
     }
 
-    override fun reset() {
+    private fun startService(context: Context, intentCommand: Intent) {
+        context.startService(intentCommand)
     }
+
+    private fun createIntent(context: Context, commands: Commands, uri: Uri? = null): Intent{
+        return Intent().apply {
+            putExtra(MusicService.COMMAND, commands.ordinal)
+            uri?.let { putExtra(MusicService.URI_TO_PLAY, it.toString()) }
+            startService(context, this)
+        }
+    }
+
 }
