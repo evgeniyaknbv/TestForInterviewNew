@@ -2,38 +2,43 @@ package com.alexandrovna.evgeniya.konobeeva.testforinterview.UI
 
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
+import android.util.Log
 import com.alexandrovna.evgeniya.konobeeva.testforinterview.MediaBlock.Commands
 import com.alexandrovna.evgeniya.konobeeva.testforinterview.MediaBlock.MusicService
 
-class MusicPresenter {
+object MusicPresenter {
+val TAG = "MUSIC_PATH"
 
-    fun play(context: Context, uri: Uri) {
-        createIntent(context, Commands.PLAY, uri)
+
+    fun play(context: Context, uri: String) {
+        Log.d(TAG, "play: ");
+        startService(context, Commands.PLAY, uri)
     }
 
     fun stop(context: Context) {
-        createIntent(context, Commands.PLAY)
+        Log.d(TAG, "stop: ");
+        startService(context, Commands.STOP)
     }
 
     fun pause(context: Context) {
-        createIntent(context,Commands.PLAY)
+        Log.d(TAG, "pause: ");
+        startService(context,Commands.PAUSE)
     }
 
-    fun reset(context: Context,uri: Uri) {
-        createIntent(context, Commands.PLAY, uri)
+    fun reset(context: Context,uri: String) {
+        Log.d(TAG, "reset: ");
+        startService(context, Commands.RESET, uri)
     }
 
-    private fun startService(context: Context, intentCommand: Intent) {
-        context.startService(intentCommand)
+    private fun startService(context: Context, commands: Commands, uri: String? = null) {
+        Log.d(TAG, "startService: ");
+        (context as MainActivity).applicationContext.startService(createIntent(context, commands, uri))
     }
 
-    private fun createIntent(context: Context, commands: Commands, uri: Uri? = null): Intent{
-        return Intent().apply {
+    private fun createIntent(context: Context, commands: Commands, uri: String? = null): Intent{
+        return Intent(context, MusicService::class.java).apply {
             putExtra(MusicService.COMMAND, commands.ordinal)
-            uri?.let { putExtra(MusicService.URI_TO_PLAY, it.toString()) }
-            startService(context, this)
-        }
+            uri?.let { this.putExtra(MusicService.URI_TO_PLAY, it.toString())}}
     }
 
 }

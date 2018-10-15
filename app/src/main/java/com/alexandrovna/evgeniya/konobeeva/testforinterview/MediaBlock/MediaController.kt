@@ -4,24 +4,26 @@ import android.content.Context
 import android.media.MediaPlayer
 import android.net.Uri
 import android.util.Log
+import com.alexandrovna.evgeniya.konobeeva.testforinterview.core_app.MusicApplication
 
 class MediaController : MusicControlls {
-    val TAG = "MediaController"
+    val TAG = "MUSIC_PATH"
     val mediaPlayer: MediaPlayer = MediaPlayer()
     var isPaused = false
 
     init {
+        Log.d(TAG, "init: ");
         setListenersToMediaPlayer()
     }
 
-    override fun play(context: Context, uri: Uri) {
+    override fun play(uri: String) {
         Log.d(TAG, "play: isPlaying = ${mediaPlayer.isPlaying}");
         if(isPaused) {
             mediaPlayer.start()
             isPaused = false
         }
         else {
-            initializeAndPrepare(context, uri)
+            initializeAndPrepare(uri)
         }
 
     }
@@ -30,6 +32,7 @@ class MediaController : MusicControlls {
         Log.d(TAG, "stop: isPlaying = ${mediaPlayer.isPlaying}");
         if(mediaPlayer.isPlaying || isPaused){
             mediaPlayer.stop()
+            isPaused = false
         }
     }
 
@@ -42,16 +45,17 @@ class MediaController : MusicControlls {
 
     }
 
-    override fun reset(context: Context, uri: Uri) {
+    override fun reset( uri: String) {
         Log.d(TAG, "reset: isPlaying = ${mediaPlayer.isPlaying}");
-        if(mediaPlayer.isPlaying){
-            mediaPlayer.reset()
-            initializeAndPrepare(context, uri)
-        }
+        mediaPlayer.reset()
+        initializeAndPrepare(uri)
     }
 
-    private fun initializeAndPrepare(context: Context, uri: Uri){
-        mediaPlayer.setDataSource(context, uri)
+    private fun initializeAndPrepare(uri: String){
+        Log.d(TAG, "initializeAndPrepare: uri = ${uri}");
+        mediaPlayer.reset()
+        mediaPlayer.setDataSource(uri)
+//        mediaPlayer.setDataSource(context, uri)
         mediaPlayer.prepareAsync()
     }
 
@@ -63,7 +67,9 @@ class MediaController : MusicControlls {
                 Log.d(TAG, "OnError: extra= $p2");
                 true }
 
-            setOnCompletionListener { mp -> Log.d(TAG, "OnCompletion: "); }
+            setOnCompletionListener { mp ->
+                isPaused = false
+                Log.d(TAG, "OnCompletion: "); }
 
             setOnPreparedListener { mp ->
                 Log.d(TAG, "OnPrepare: ");
